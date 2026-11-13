@@ -8,7 +8,7 @@
 <title>Gửi anh 💗</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;800&family=Dancing+Script:wght@700&family=Lobster&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;800&family=Dancing+Script:wght@700&family=Lobster&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
 <style>
   html, body { margin: 0; height: 100%; background: #000; overflow: hidden;
     touch-action: none; -webkit-user-select: none; user-select: none; }
@@ -94,7 +94,7 @@ const CONFIG = {
   rainColor: [255, 150, 205],  // màu mưa mã (R,G,B)
   palette: ['#ffffff', '#ffe1f0', '#ffb3d9', '#ff8cc6'],   // màu các hạt chữ
   heartPalette: ['#ff4d94', '#ff6fa8', '#ff9cc4', '#ffd1e4'],
-  textFont: "'Be Vietnam Pro', sans-serif",  // giống video. Kiểu viết tay: "'Lobster', cursive"   // font chữ lời nhắn. Có thể đổi: "'Dancing Script', cursive" hoặc "'Be Vietnam Pro', sans-serif"
+  textFont: "'Playfair Display', serif",  // Kiểu khác: "'Be Vietnam Pro', sans-serif" | "'Lobster', cursive" | "'Dancing Script', cursive"  // giống video. Kiểu viết tay: "'Lobster', cursive"   // font chữ lời nhắn. Có thể đổi: "'Dancing Script', cursive" hoặc "'Be Vietnam Pro', sans-serif"
   numberFont: "'Be Vietnam Pro', sans-serif", // font số đếm
 
   countdown: ['1', '2', '3'],
@@ -203,10 +203,10 @@ function samplePoints(o, gap, scale = 1) {
 
 function layoutText(o, text, big) {
   const family = big ? CONFIG.numberFont : CONFIG.textFont;
-  const font = s => `${big ? 800 : (family.includes('Lobster') ? 400 : 700)} ${s}px ${family}`;
+  const font = s => `${!big && family.includes('Playfair') ? 'italic ' : ''}${big ? 800 : (family.includes('Lobster') ? 400 : 700)} ${s}px ${family}`;
   const maxW = W * 0.88, maxH = H * (big ? 0.75 : 0.74);
   const raw = text.split('|').map(s => s.trim());
-  let fs = big ? H * 0.6 : Math.min(H * 0.26, W * 0.12);
+  let fs = big ? H * 0.6 : Math.min(H * 0.3, W * 0.13);
   const wrap = () => {
     const out = [];
     for (const line of raw) {
@@ -245,7 +245,7 @@ function textShape(text, big) {
   // Lớp chữ nét mịn, phát sáng — hiện dần sau khi hạt bay vào
   const [pc, po] = makeCanvas(DPR);
   const grad = po.createLinearGradient(0, H * 0.3, 0, H * 0.7);
-  grad.addColorStop(0, '#ffffff'); grad.addColorStop(0.6, '#fff4fa'); grad.addColorStop(1, '#ffd9ec');
+  grad.addColorStop(0, '#ffffff'); grad.addColorStop(0.5, '#ffe6f2'); grad.addColorStop(1, '#ffb8dc');
   po.shadowColor = 'rgba(0, 0, 0, 0.85)'; po.shadowBlur = L.fs * 0.18;   // bóng tối mỏng quanh chữ cho dễ đọc
   drawLines(po, L, 'rgba(0,0,0,0.5)');
   po.shadowColor = 'rgba(255, 150, 210, 0.9)'; po.shadowBlur = L.fs * 0.22;  // viền sáng hồng nhạt
@@ -428,7 +428,7 @@ startEl.addEventListener('click', async () => {
   } catch (e) {}
   try {
     await Promise.all([
-      document.fonts.load(`400 60px ${CONFIG.textFont}`), document.fonts.load(`700 60px ${CONFIG.textFont}`),
+      document.fonts.load(`400 60px ${CONFIG.textFont}`), document.fonts.load(`italic 700 60px ${CONFIG.textFont}`), document.fonts.load(`700 60px ${CONFIG.textFont}`),
       document.fonts.load(`800 60px ${CONFIG.numberFont}`),
     ]);
   } catch (e) {}
