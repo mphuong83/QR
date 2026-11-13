@@ -94,7 +94,7 @@ const CONFIG = {
   rainColor: [255, 150, 205],  // màu mưa mã (R,G,B)
   palette: ['#ffffff', '#ffe1f0', '#ffb3d9', '#ff8cc6'],   // màu các hạt chữ
   heartPalette: ['#ff4d94', '#ff6fa8', '#ff9cc4', '#ffd1e4'],
-  textFont: "'Lobster', cursive",   // font chữ lời nhắn. Có thể đổi: "'Dancing Script', cursive" hoặc "'Be Vietnam Pro', sans-serif"
+  textFont: "'Be Vietnam Pro', sans-serif",  // giống video. Kiểu viết tay: "'Lobster', cursive"   // font chữ lời nhắn. Có thể đổi: "'Dancing Script', cursive" hoặc "'Be Vietnam Pro', sans-serif"
   numberFont: "'Be Vietnam Pro', sans-serif", // font số đếm
 
   countdown: ['1', '2', '3'],
@@ -117,7 +117,8 @@ const CONFIG = {
     'Và rồi...',
     { text: 'Chẳng muốn|rời xa nữa', hold: 2600 },
   ],
-  holdTime: 1500,
+  holdTime: 1300,     // thời gian giữ chữ cơ bản (ms)
+  holdPerChar: 70,    // cộng thêm mỗi ký tự để câu dài đủ thời gian đọc
   formTime: 900,
   explodeTime: 500,
   finalHeart: true,
@@ -205,7 +206,7 @@ function layoutText(o, text, big) {
   const font = s => `${big ? 800 : (family.includes('Lobster') ? 400 : 700)} ${s}px ${family}`;
   const maxW = W * 0.88, maxH = H * (big ? 0.75 : 0.74);
   const raw = text.split('|').map(s => s.trim());
-  let fs = big ? H * 0.6 : Math.min(H * 0.33, W * 0.15);
+  let fs = big ? H * 0.6 : Math.min(H * 0.26, W * 0.12);
   const wrap = () => {
     const out = [];
     for (const line of raw) {
@@ -244,10 +245,10 @@ function textShape(text, big) {
   // Lớp chữ nét mịn, phát sáng — hiện dần sau khi hạt bay vào
   const [pc, po] = makeCanvas(DPR);
   const grad = po.createLinearGradient(0, H * 0.3, 0, H * 0.7);
-  grad.addColorStop(0, '#ffffff'); grad.addColorStop(0.5, '#ffe0ef'); grad.addColorStop(1, '#ffa6d2');
-  po.shadowColor = 'rgba(0, 0, 0, 0.9)'; po.shadowBlur = L.fs * 0.5;   // nền tối sau chữ cho dễ đọc
-  drawLines(po, L, 'rgba(0,0,0,0.6)');
-  po.shadowColor = 'rgba(255, 70, 160, 1)'; po.shadowBlur = L.fs * 0.3;  // viền sáng hồng
+  grad.addColorStop(0, '#ffffff'); grad.addColorStop(0.6, '#fff4fa'); grad.addColorStop(1, '#ffd9ec');
+  po.shadowColor = 'rgba(0, 0, 0, 0.85)'; po.shadowBlur = L.fs * 0.18;   // bóng tối mỏng quanh chữ cho dễ đọc
+  drawLines(po, L, 'rgba(0,0,0,0.5)');
+  po.shadowColor = 'rgba(255, 150, 210, 0.9)'; po.shadowBlur = L.fs * 0.22;  // viền sáng hồng nhạt
   drawLines(po, L, grad);
   po.shadowBlur = L.fs * 0.08; po.shadowColor = 'rgba(255, 200, 230, 1)';
   drawLines(po, L, grad);
@@ -362,12 +363,12 @@ async function show(item, hold, form = CONFIG.formTime, exp = CONFIG.explodeTime
 }
 async function run() {
   await sleep(500);
-  rain.style.opacity = 0.3;
+  rain.style.opacity = 0.75;   // mã vẫn chạy rõ phía sau chữ
   for (const n of CONFIG.countdown)
     await show({ type: 'text', text: n, big: true }, CONFIG.countdownHold, CONFIG.countdownForm, CONFIG.countdownExplode);
   for (const m of CONFIG.messages) {
     const item = typeof m === 'string' ? { text: m } : m;
-    await show({ type: 'text', text: item.text }, item.hold ?? CONFIG.holdTime);
+    await show({ type: 'text', text: item.text }, item.hold ?? (CONFIG.holdTime + item.text.length * CONFIG.holdPerChar));
   }
   if (CONFIG.finalHeart) {
     current = { type: 'heart' };
