@@ -115,12 +115,12 @@ const CONFIG = {
     'Muốn hiểu hơn',
     'Muốn gần hơn',
     'Và rồi...',
-    { text: 'Chẳng muốn|rời xa nữa', hold: 2600 },
+    { text: 'Chẳng muốn|rời xa nữa', hold: 4000 },
   ],
-  holdTime: 1300,     // thời gian giữ chữ cơ bản (ms)
-  holdPerChar: 70,    // cộng thêm mỗi ký tự để câu dài đủ thời gian đọc
-  formTime: 900,
-  explodeTime: 500,
+  holdTime: 2200,     // thời gian giữ chữ cơ bản (ms)
+  holdPerChar: 90,    // cộng thêm mỗi ký tự để câu dài đủ thời gian đọc
+  formTime: 1100,
+  explodeTime: 600,
   finalHeart: true,
 };
 
@@ -363,7 +363,7 @@ async function show(item, hold, form = CONFIG.formTime, exp = CONFIG.explodeTime
 }
 async function run() {
   await sleep(500);
-  rain.style.opacity = 0.75;   // mã vẫn chạy rõ phía sau chữ
+  rain.style.opacity = 1;   // mã vẫn chạy rõ phía sau chữ
   for (const n of CONFIG.countdown)
     await show({ type: 'text', text: n, big: true }, CONFIG.countdownHold, CONFIG.countdownForm, CONFIG.countdownExplode);
   for (const m of CONFIG.messages) {
