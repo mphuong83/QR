@@ -146,6 +146,7 @@ function resize() {
   colAlpha = Array.from({ length: cols }, () => rand(0.25, 1));
   colSpeed = Array.from({ length: cols }, () => rand(0.6, 1));
   rctx.fillStyle = '#000'; rctx.fillRect(0, 0, W, H);
+  uniformFs = null;
   checkOrientation();
   if (current && mode === 'form') applyShape(current);
 }
@@ -198,13 +199,12 @@ function samplePoints(o, gap, scale = 1) {
   return { pts, gap };
 }
 
-function layoutText(o, text, big) {
-  const family = big ? CONFIG.numberFont : CONFIG.textFont;
+let uniformFs = null;   // cỡ chữ chung cho mọi câu (= cỡ câu đầu tiên)
+function fitText(o, text, fs, big, family) {
   const font = s => `${!big && family.includes('Playfair') ? 'italic ' : ''}${big ? 800 : (family.includes('Lobster') ? 400 : 700)} ${s}px ${family}`;
-  const maxW = W * 0.88, maxH = H * (big ? 0.75 : 0.74);
+  const maxW = W * 0.88, maxH = H * (big ? 0.75 : 0.8);
   const raw = text.split('|').map(s => s.trim());
-  let fs = big ? H * 0.6 : Math.min(H * 0.3, W * 0.13);
-  const wrap = () => {
+  const wrap = () => {            // không vừa 1 dòng thì xuống dòng, căn giữa
     const out = [];
     for (const line of raw) {
       let cur = '';
@@ -217,22 +217,24 @@ function layoutText(o, text, big) {
     return out;
   };
   o.font = font(fs);
-  // Ưu tiên hiện cả câu trên 1 dòng: thu nhỏ chữ cho vừa, chỉ xuống dòng khi chữ quá nhỏ
-  const oneLine = raw.join(' ');
-  let f1 = fs;
-  while (f1 > H * 0.13) { o.font = font(f1); if (o.measureText(oneLine).width <= maxW) break; f1 *= 0.95; }
-  o.font = font(f1);
-  if (o.measureText(oneLine).width <= maxW) {
-    return { lines: [oneLine], fs: f1, font: font(f1) };
-  }
-  o.font = font(fs);
   let lines = wrap();
-  for (let k = 0; k < 40; k++) {
+  for (let k = 0; k < 40; k++) {  // chỉ thu nhỏ khi xuống dòng rồi vẫn không đủ chỗ
     const widest = Math.max(...lines.map(l => o.measureText(l).width));
     if (widest <= maxW && lines.length * fs * 1.15 <= maxH) break;
-    fs *= 0.93; o.font = font(fs); lines = wrap();
+    fs *= 0.95; o.font = font(fs); lines = wrap();
   }
   return { lines, fs, font: font(fs) };
+}
+function layoutText(o, text, big) {
+  if (big) return fitText(o, text, H * 0.6, true, CONFIG.numberFont);
+  if (uniformFs === null) {
+    // cỡ chữ của câu đầu tiên, giảm xuống nếu có câu nào không vừa màn hình sau khi xuống dòng
+    const msgs = CONFIG.messages.map(m => typeof m === 'string' ? m : m.text);
+    let fs = fitText(o, msgs[0], Math.min(H * 0.3, W * 0.13), false, CONFIG.textFont).fs;
+    for (const m of msgs) fs = Math.min(fs, fitText(o, m, fs, false, CONFIG.textFont).fs);
+    uniformFs = fs;
+  }
+  return fitText(o, text, uniformFs, false, CONFIG.textFont);
 }
 
 function drawLines(o, L, fill) {
