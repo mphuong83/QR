@@ -103,19 +103,16 @@ const CONFIG = {
   countdownExplode: 600,
   messages: [
     'Gặp được anh',
-    'Không nằm trong|kế hoạch',
-    'Cũng chẳng phải',
-    'Điều em ngờ tới',
-    'Chỉ là vào|1 ngày bình thường',
-    'Anh bất ngờ|xuất hiện',
+    'Không nằm trong kế hoạch',
+    'Cũng chẳng phải điều em ngờ tới',
+    'Chỉ là vào 1 ngày bình thường',
+    'Anh bất ngờ xuất hiện',
     'Không ồn ào',
     'Không phô trương',
-    'Chỉ lặng lẽ',
-    'Khiến em dừng lại',
+    'Chỉ lặng lẽ khiến e dừng lại',
     'Muốn hiểu hơn',
     'Muốn gần hơn',
-    'Và rồi...',
-    { text: 'Chẳng muốn|rời xa nữa', hold: 4000 },
+    { text: 'Và rồi chẳng muốn rời xa nữa', hold: 4500 },
   ],
   holdTime: 2200,     // thời gian giữ chữ cơ bản (ms)
   holdPerChar: 90,    // cộng thêm mỗi ký tự để câu dài đủ thời gian đọc
@@ -219,6 +216,15 @@ function layoutText(o, text, big) {
     }
     return out;
   };
+  o.font = font(fs);
+  // Ưu tiên hiện cả câu trên 1 dòng: thu nhỏ chữ cho vừa, chỉ xuống dòng khi chữ quá nhỏ
+  const oneLine = raw.join(' ');
+  let f1 = fs;
+  while (f1 > H * 0.13) { o.font = font(f1); if (o.measureText(oneLine).width <= maxW) break; f1 *= 0.95; }
+  o.font = font(f1);
+  if (o.measureText(oneLine).width <= maxW) {
+    return { lines: [oneLine], fs: f1, font: font(f1) };
+  }
   o.font = font(fs);
   let lines = wrap();
   for (let k = 0; k < 40; k++) {
